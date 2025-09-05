@@ -6,7 +6,7 @@ import PredictionResults from './components/PredictionResults';
 import axios from 'axios';
 
 function App() {
-  const [step, setStep] = useState(1); // 1: Upload, 2: Train, 3: Predict
+  const [step, setStep] = useState(1); 
   const [files, setFiles] = useState([]);
   const [conference, setConference] = useState({
     location: '',

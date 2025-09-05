@@ -434,4 +434,192 @@ body {
   .file-upload-section, .train-section, .conference-form-section, .results-section {
     padding: 1.5rem;
   }
+  /* Add these styles to your existing App.css */
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--accent-brown);
+  color: var(--white);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+.download-btn:hover {
+  background-color: var(--dark-brown);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px var(--shadow);
+}
+
+/* Responsive design for download button */
+@media (max-width: 768px) {
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .download-btn {
+    align-self: stretch;
+    justify-content: center;
+  }
+}
+/* Add these styles to your existing App.css */
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.download-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--accent-brown);
+  color: var(--white);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+.download-btn:hover {
+  background-color: var(--dark-brown);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px var(--shadow);
+}
+
+.probability-bar {
+  position: relative;
+  height: 20px;
+  background-color: var(--beige);
+  border-radius: 10px;
+  overflow: hidden;
+  width: 100px;
+}
+
+.probability-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: var(--primary-brown);
+  border-radius: 10px;
+}
+
+.probability-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--white);
+  text-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+.attendance-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.will-attend {
+  background-color: var(--success-green);
+  color: white;
+}
+
+.will-not-attend {
+  background-color: var(--error-red);
+  color: white;
+}
+
+.attending-row {
+  background-color: rgba(129, 199, 132, 0.1);
+}
+
+.not-attending-row {
+  background-color: rgba(229, 115, 115, 0.1);
+}
+
+.explanation-cell {
+  max-width: 300px;
+  font-size: 0.9rem;
+}
+
+.view-toggle {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid var(--primary-brown);
+  color: var(--primary-brown);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background-color: var(--primary-brown);
+  color: var(--white);
+}
+
+/* Responsive design for download buttons */
+@media (max-width: 768px) {
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .download-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .download-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .probability-bar {
+    width: 80px;
+  }
+  
+  .explanation-cell {
+    max-width: 150px;
+    font-size: 0.8rem;
+  }
+}
 }
