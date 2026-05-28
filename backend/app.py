@@ -24,8 +24,19 @@ logger = logging.getLogger(__name__)
 # ----------------------------
 app = Flask(__name__)
 
-# Enable CORS for all origins
-CORS(app)
+# ----------------------------
+# FIXED CORS CONFIGURATION
+# ----------------------------
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": [
+                "https://doc-attend-ai.vercel.app"
+            ]
+        }
+    }
+)
 
 # ----------------------------
 # Global Variables
@@ -40,24 +51,26 @@ UPLOAD_FOLDER = "data"
 # Utility Functions
 # ----------------------------
 def get_data_hash(data):
-    """
-    Generate a hash of dataframe to detect duplicate uploads
-    """
+
     try:
         return str(pd.util.hash_pandas_object(data).sum())
+
     except Exception as e:
+
         logger.error(f"Hash generation error: {str(e)}")
+
         return str(hash(str(data.values.tobytes())))
 
 
 def cleanup_temp_folder():
-    """
-    Remove temporary upload folder safely
-    """
+
     try:
+
         if os.path.exists(UPLOAD_FOLDER):
             shutil.rmtree(UPLOAD_FOLDER)
+
     except Exception as e:
+
         logger.error(f"Cleanup error: {str(e)}")
 
 
@@ -66,6 +79,7 @@ def cleanup_temp_folder():
 # ----------------------------
 @app.route("/")
 def home():
+
     return jsonify({
         "status": "success",
         "message": "DocAttend Backend Running Successfully"
@@ -74,6 +88,7 @@ def home():
 
 @app.route("/test", methods=["GET"])
 def test():
+
     return jsonify({
         "status": "success",
         "message": "Backend is running"
@@ -85,10 +100,13 @@ def test():
 # ----------------------------
 @app.route("/upload-csv", methods=["POST"])
 def upload_csv():
+
     global combined_data, model_data, current_data_hash
 
     try:
+
         if "files" not in request.files:
+
             return jsonify({
                 "status": "error",
                 "message": "No file part found"
@@ -97,18 +115,18 @@ def upload_csv():
         files = request.files.getlist("files")
 
         if len(files) == 0:
+
             return jsonify({
                 "status": "error",
                 "message": "No files selected"
             }), 400
 
-        # Create temp upload folder
         cleanup_temp_folder()
+
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
         file_paths = []
 
-        # Save uploaded files
         for file in files:
 
             if file.filename == "":
@@ -117,25 +135,26 @@ def upload_csv():
             if not file.filename.endswith(".csv"):
                 continue
 
-            file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+            file_path = os.path.join(
+                UPLOAD_FOLDER,
+                file.filename
+            )
 
             file.save(file_path)
 
             file_paths.append(file_path)
 
         if len(file_paths) == 0:
+
             return jsonify({
                 "status": "error",
                 "message": "No valid CSV files uploaded"
             }), 400
 
-        # Combine CSVs
         new_combined_data = combine_csv_files(file_paths)
 
-        # Generate hash
         new_data_hash = get_data_hash(new_combined_data)
 
-        # Detect duplicate uploads
         if current_data_hash == new_data_hash:
 
             cleanup_temp_folder()
@@ -149,9 +168,10 @@ def upload_csv():
                 }
             }), 200
 
-        # Update global variables
         combined_data = new_combined_data
+
         current_data_hash = new_data_hash
+
         model_data = None
 
         cleanup_temp_folder()
@@ -184,11 +204,13 @@ def upload_csv():
 # ----------------------------
 @app.route("/train", methods=["POST"])
 def train():
+
     global combined_data, model_data
 
     try:
 
         if combined_data is None:
+
             return jsonify({
                 "status": "error",
                 "message": "Upload CSV files first"
@@ -203,32 +225,33 @@ def train():
         ]
 
         missing_columns = [
+
             col for col in required_columns
+
             if col not in combined_data.columns
         ]
 
         if missing_columns:
+
             return jsonify({
                 "status": "error",
                 "message": f"Missing columns: {missing_columns}"
             }), 400
 
-        # Preprocess data
         processed_data, encoders = preprocess_data(combined_data)
 
         logger.info("Preprocessing completed")
 
-        # Train model
         model_data = train_model(processed_data, encoders)
 
         logger.info("Model training completed")
 
-        # Add metadata
         model_data["data_hash"] = current_data_hash
+
         model_data["training_timestamp"] = pd.Timestamp.now().isoformat()
+
         model_data["data_shape"] = list(processed_data.shape)
 
-        # Convert numpy types
         if "model_metrics" in model_data:
 
             cleaned_metrics = {}
@@ -236,17 +259,24 @@ def train():
             for key, value in model_data["model_metrics"].items():
 
                 if isinstance(value, np.integer):
+
                     cleaned_metrics[key] = int(value)
 
                 elif isinstance(value, np.floating):
+
                     cleaned_metrics[key] = float(value)
 
                 else:
+
                     cleaned_metrics[key] = value
 
             model_data["model_metrics"] = cleaned_metrics
 
-        if isinstance(model_data.get("optimal_threshold"), np.floating):
+        if isinstance(
+            model_data.get("optimal_threshold"),
+            np.floating
+        ):
+
             model_data["optimal_threshold"] = float(
                 model_data["optimal_threshold"]
             )
@@ -278,17 +308,20 @@ def train():
 # ----------------------------
 @app.route("/predict", methods=["POST"])
 def predict():
+
     global combined_data, model_data
 
     try:
 
         if combined_data is None or model_data is None:
+
             return jsonify({
                 "status": "error",
                 "message": "Train model before prediction"
             }), 400
 
         if model_data.get("data_hash") != current_data_hash:
+
             return jsonify({
                 "status": "error",
                 "message": "Dataset changed. Retrain model."
@@ -297,9 +330,11 @@ def predict():
         data = request.get_json()
 
         conference_location = data.get("location")
+
         conference_specialization = data.get("specialization")
 
         if not conference_location or not conference_specialization:
+
             return jsonify({
                 "status": "error",
                 "message": "Location and specialization required"
@@ -339,6 +374,7 @@ def predict():
 # ----------------------------
 @app.route("/reset", methods=["POST"])
 def reset():
+
     global combined_data, model_data, current_data_hash
 
     try:
@@ -379,4 +415,10 @@ def reset():
 # Main Entry
 # ----------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+
+    port = int(os.environ.get("PORT", 5000))
+
+    app.run(
+        host="0.0.0.0",
+        port=port
+    )
